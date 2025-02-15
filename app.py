@@ -155,3 +155,9 @@ st.markdown(
     f"<h1 style='text-align: center; color: {color}; font-weight: bold;'>{st.session_state.gender_label}</h1>",
     unsafe_allow_html=True
 )
+
+if ctx and ctx.state.playing:
+    st.write("WebRTC is running.")
+    print("WebRTC is running.")  # Print to logs
+else:
+    print("WebRTC not running.")  # Print if it never starts
