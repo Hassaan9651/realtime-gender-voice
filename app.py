@@ -84,44 +84,10 @@ model, feature_extractor = load_model()
 # Streamlit UI
 st.title("🎙️ Gender by Voice (WebRTC)")
 
-lock = threading.Lock()
-st.session_state.audio_buffer = []
-# class AudioProceszsor(AudioProcessorBase):
-#     """Handles real-time audio processing from WebRTC stream."""
-#
-#     def __init__(self):
-#         audio_buffer = []
+# lock = threading.Lock()
+if "audio_buffer" not in st.session_state:
+    st.session_state.audio_buffer = []
 
-    # def recv_audio(self, frame: av.AudioFrame) -> av.AudioFrame:
-    #     """Processes audio stream from WebRTC."""
-    #     audio_data = np.array(frame.to_ndarray()).astype(np.float32)
-    #     print(len(audio_data))
-    #
-    #     # Collect 0.3s chunks before processing
-    #     sample_rate = frame.sample_rate  # Get sample rate from WebRTC
-    #     chunk_size = int(sample_rate * 0.3)  # Convert 0.3 sec to samples
-    #
-    #     audio_buffer.extend(audio_data)
-    #
-    #     if len(audio_buffer) >= chunk_size:
-    #         # Extract a 0.3s chunk
-    #         chunk = np.array(audio_buffer[:chunk_size])
-    #         audio_buffer = audio_buffer[chunk_size:]  # Remove processed chunk
-    #
-    #         # Normalize and predict gender
-    #         if chunk.size > 0:
-    #             waveform = torch.tensor(chunk)
-    #             waveform /= torch.max(torch.abs(waveform)) if torch.max(torch.abs(waveform)) > 0 else 1
-    #             st.session_state.gender_label = predict_gender(waveform, model, feature_extractor)
-    #             # Display gender prediction dynamically
-    #             color = "red" if st.session_state.gender_label == "Male" else (
-    #                 "yellow" if st.session_state.gender_label == "None" else "green")
-    #             st.markdown(
-    #                 f"<h1 style='text-align: center; color: {color}; font-weight: bold;'>{st.session_state.gender_label}</h1>",
-    #                 unsafe_allow_html=True
-    #             )
-    #         st.rerun()
-    #     return frame  # Must return a frame for WebRTC to continue streaming
 
 def audio_callback(frame):
     """Processes audio stream from WebRTC."""
@@ -137,21 +103,16 @@ def audio_callback(frame):
     if len(st.session_state.audio_buffer) >= chunk_size:
         # Extract a 0.3s chunk
         chunk = np.array(st.session_state.audio_buffer[:chunk_size])
-        audio_buffer = st.session_state.audio_buffer[chunk_size:]  # Remove processed chunk
+        st.session_state.audio_buffer = st.session_state.audio_buffer[chunk_size:]  # Properly update buffer
 
         # Normalize and predict gender
         if chunk.size > 0:
-            waveform = torch.tensor(chunk)
+            waveform = torch.tensor(chunk, dtype=torch.float32)
             waveform /= torch.max(torch.abs(waveform)) if torch.max(torch.abs(waveform)) > 0 else 1
+
             st.session_state.gender_label = predict_gender(waveform, model, feature_extractor)
-            # Display gender prediction dynamically
-            color = "red" if st.session_state.gender_label == "Male" else (
-                "yellow" if st.session_state.gender_label == "None" else "green")
-            st.markdown(
-                f"<h1 style='text-align: center; color: {color}; font-weight: bold;'>{st.session_state.gender_label}</h1>",
-                unsafe_allow_html=True
-            )
-        st.rerun()
+
+        # st.rerun()
     return frame  # Must return a frame for WebRTC to continue streaming
 # WebRTC Streaming
 ctx = webrtc_streamer(
@@ -168,3 +129,11 @@ ctx = webrtc_streamer(
 # Initialize session state for gender label
 if "gender_label" not in st.session_state:
     st.session_state.gender_label = "Unknown"
+
+# Display gender prediction dynamically
+color = "red" if st.session_state.gender_label == "Male" else (
+    "yellow" if st.session_state.gender_label == "None" else "green")
+st.markdown(
+    f"<h1 style='text-align: center; color: {color}; font-weight: bold;'>{st.session_state.gender_label}</h1>",
+    unsafe_allow_html=True
+)
