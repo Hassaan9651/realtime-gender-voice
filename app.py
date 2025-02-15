@@ -88,12 +88,12 @@ except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 
 
-# Patch torch._classes to prevent Streamlit from inspecting it
-class TorchClassesMock:
-    def __getattr__(self, item):
-        raise AttributeError(f"'torch.classes' has no attribute '{item}'")
 
-torch.classes = TorchClassesMock()
+try:
+    dir(torch.classes)  # Force Streamlit to ignore it
+except RuntimeError:
+    torch.classes = None  # Prevents Streamlit from accessing it
+
 
 # Load the ML model & feature extractor
 model, feature_extractor = load_model()
