@@ -75,8 +75,18 @@ import numpy as np
 import torch
 from stream_helper import load_model, predict_gender  # Assuming these exist
 from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode
-import av
-import threading
+# import av
+# import threading
+
+import asyncio
+
+try:
+    loop = asyncio.get_event_loop()
+    if loop.is_closed():
+        asyncio.set_event_loop(asyncio.new_event_loop())
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
 
 # Load the ML model & feature extractor
 model, feature_extractor = load_model()
@@ -122,7 +132,8 @@ ctx = webrtc_streamer(
     media_stream_constraints={"audio": True, "video": False},  # Audio only
     audio_frame_callback= audio_callback,
     rtc_configuration={  # Add this config
-        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]},
+        {"urls": "turn:relay.metered.ca:80", "username": "open", "credential": "open"}]
     }
 )
 

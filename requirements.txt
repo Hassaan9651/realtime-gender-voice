@@ -3,3 +3,4 @@ torchaudio
 pyaudio
 transformers
 streamlit_webrtc
+aioice
