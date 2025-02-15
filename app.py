@@ -52,9 +52,9 @@ def process_audio():
         if waveform_np.size != 0:
             waveform = torch.tensor(waveform_np)
             waveform /= torch.max(torch.abs(waveform)) if torch.max(torch.abs(waveform)) > 0 else 1
-            t = time.time()
+            # t = time.time()
             st.session_state.gender_label = predict_gender(waveform, model, feature_extractor)
-            print(time.time() - t)
+            # print(time.time() - t)
             color1 = "red" if st.session_state.gender_label=="Male" else ("yellow" if st.session_state.gender_label=="None" else "green")
             st.markdown(f"<h1 style='text-align: center; color: {color1}; font-weight: bold;'>{st.session_state.gender_label}</h1>", unsafe_allow_html=True)
         # time.sleep(0.1)
