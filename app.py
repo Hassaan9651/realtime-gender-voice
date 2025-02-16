@@ -1,15 +1,16 @@
 import torch
 import torchaudio
 import numpy as np
-import io
+import io, os
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from transformers import AutoFeatureExtractor, Wav2Vec2ForSequenceClassification
 
 from helper import predict_gender, load_model
 
+
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 # Load the gender classification model
 model, feature_extractor = load_model()
@@ -38,5 +39,8 @@ def handle_audio(data):
 def index():
     return render_template("index.html")
 
+# if __name__ == '__main__':
+#     port = int(os.environ.get("PORT", 8080))  # ✅ Update port from environment variable
+#     socketio.run(app, host="0.0.0.0", port=port, debug=False, allow_unsafe_werkzeug=True)
 if __name__ == '__main__':
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
