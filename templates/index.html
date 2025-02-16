@@ -3,7 +3,7 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
-        let socket = io.connect(window.location.origin);
+        let socket = io.connect(window.location.origin, { transports: ["polling"] });
         let audioContext, mediaStreamSource, processor, stream;
         let isRecording = false;
 

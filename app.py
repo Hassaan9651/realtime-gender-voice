@@ -10,7 +10,7 @@ from helper import predict_gender, load_model
 
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", logger=True, engineio_logger=True, ping_interval=25, ping_timeout=120)
 
 # Load the gender classification model
 model, feature_extractor = load_model()
