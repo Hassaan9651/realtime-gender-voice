@@ -1,6 +1,5 @@
 torch
 torchaudio
-pyaudio
 transformers
-streamlit_webrtc
-aioice
+flask
+flask-socketio
