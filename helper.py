@@ -1,14 +1,9 @@
 import sys
 import torch
-import pyaudio
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor
 
 # Constants
 TARGET_SAMPLING_RATE = 16000
-CHUNK = 1024  # Number of audio frames per buffer
-FORMAT = pyaudio.paInt16
-CHANNELS = 1  # Mono audio
-RATE = TARGET_SAMPLING_RATE  # Sample rate
 
 
 def load_model():
