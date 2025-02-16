@@ -4,30 +4,58 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
         let socket = io.connect("http://localhost:5000");
+        let audioContext, mediaStreamSource, processor, stream;
+        let isRecording = false;
 
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(function(stream) {
-                let audioContext = new AudioContext();
-                let mediaStreamSource = audioContext.createMediaStreamSource(stream);
-                let processor = audioContext.createScriptProcessor(4096, 1, 1);
+        function toggleRecording() {
+            if (!isRecording) {
+                startRecording();
+                document.getElementById("recordButton").innerText = "Stop Recording";
+            } else {
+                stopRecording();
+                document.getElementById("recordButton").innerText = "Start Recording";
+            }
+            isRecording = !isRecording;
+        }
 
-                mediaStreamSource.connect(processor);
-                processor.connect(audioContext.destination);
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function(userStream) {
+                    stream = userStream;
+                    audioContext = new AudioContext();
+                    mediaStreamSource = audioContext.createMediaStreamSource(stream);
+                    processor = audioContext.createScriptProcessor(4096, 1, 1);
 
-                processor.onaudioprocess = function(event) {
-                    let audioData = event.inputBuffer.getChannelData(0);
-                    let int16Array = new Int16Array(audioData.length);
+                    mediaStreamSource.connect(processor);
+                    processor.connect(audioContext.destination);
 
-                    for (let i = 0; i < audioData.length; i++) {
-                        int16Array[i] = audioData[i] * 32767;
-                    }
+                    processor.onaudioprocess = function(event) {
+                        let audioData = event.inputBuffer.getChannelData(0);
+                        let int16Array = new Int16Array(audioData.length);
 
-                    socket.emit("audio", int16Array.buffer);
-                };
-            })
-            .catch(function(error) {
-                console.error("Microphone access denied!", error);
-            });
+                        for (let i = 0; i < audioData.length; i++) {
+                            int16Array[i] = audioData[i] * 32767;
+                        }
+
+                        socket.emit("audio", int16Array.buffer);
+                    };
+                })
+                .catch(function(error) {
+                    console.error("Microphone access denied!", error);
+                });
+        }
+
+        function stopRecording() {
+            if (processor) {
+                processor.disconnect();
+            }
+            if (mediaStreamSource) {
+                mediaStreamSource.disconnect();
+            }
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
 
         socket.on("analysis", function(data) {
             document.getElementById("result").innerText = "Analysis: " + data;
@@ -36,6 +64,7 @@
 </head>
 <body>
     <h2>Live Audio Analysis</h2>
+    <button id="recordButton" onclick="toggleRecording()">Start Recording</button>
     <p id="result">Waiting for audio analysis...</p>
 </body>
 </html>
