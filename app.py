@@ -33,7 +33,7 @@ def analyze_audio(audio_data, sample_rate=16000):
     # Combine the last 5 collected samples
     if len(audio_buffer) == 5:
         combined_audio = np.concatenate(list(audio_buffer))
-        print(len(combined_audio))
+        # print(len(combined_audio))
     else:
         combined_audio = np.concatenate(list(audio_buffer))  # Use available samples
 
