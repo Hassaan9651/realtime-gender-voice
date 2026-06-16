@@ -1,0 +1,19 @@
+name: CI Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run a diagnostic test
+        run: |
+          echo "Testing integration..."
+          # This will succeed, but you can change it to 'exit 1' to test failures
+          exit 0 
