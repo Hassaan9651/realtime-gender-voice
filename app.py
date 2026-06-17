@@ -52,7 +52,7 @@ def analyze_audio(audio_data, sample_rate=16000):
 def handle_audio(data):
     """Receive audio from the browser, process it, and return results."""
     sample_rate = 16000  # Ensure fixed sample rate
-    result = analyze_audios(data, sample_rate)
+    result = analyze_audio(data, sample_rate)
     socketio.emit("analysis", result)  # Send result back
 
 
